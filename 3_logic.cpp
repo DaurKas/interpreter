@@ -7,15 +7,48 @@ using namespace std;
 enum OPERATOR {
     LBRACKET, RBRACKET,
     ASSIGN,
+    OR,
+    AND,
+    BITOR,
+    XOR,
+    BITAND,
+    EQ, NEQ,
+    LEQ, LT,
+    GEQ, GT,
+    SHL, SHR,
     PLUS, MINUS,
-    MULTIPLY
+    MULTIPLY, DIV, MOD
 };
 int PRIORITY[] = {
     -1, -1,
     0,
-    1, 1,
-    2
+    1,
+    3,
+    4,
+    5,
+    6, 6,
+    7, 7,
+    7, 7,
+    8, 8,
+    9, 9,
+    10, 10, 10
 };
+string OPERTEXT[] = {
+    "(", ")",
+    ":=",
+    "or",
+    "and",
+    "|",
+    "^",
+    "&",
+    "==", "!=",
+    "<=", "<",
+    ">=", ">",
+    "<<", ">>",
+    "+", "-",
+    "*", "/", "%"
+};
+int OP_NUM = sizeof(PRIORITY) / sizeof(int);
 class Lexem {
 public:
     Lexem() { };
@@ -58,19 +91,8 @@ public:
 class Oper: public Lexem {
     OPERATOR opertype;
 public:
-    Oper(char ch) {
-        if (ch == '(')
-            opertype = LBRACKET;
-        if (ch == ')')
-            opertype = RBRACKET;
-        if (ch == '+') 
-            opertype = PLUS;
-        if (ch == '-')
-            opertype = MINUS;
-        if (ch == '*')
-            opertype = MULTIPLY;
-        if (ch == '=')
-            opertype = ASSIGN;
+    Oper(int op) {
+        opertype = (OPERATOR)op;
     }
     virtual OPERATOR getType() const {
         return opertype;
@@ -88,20 +110,50 @@ public:
             b = ((Variable*)right)->getValue();
         else
             b = ((Number*)right)->getValue();
-        if (opertype == PLUS) 
+        switch(opertype) {
+        case PLUS:
             return a + b;
-        else if (opertype == MINUS) 
-                return a - b;
-             else if (opertype == MULTIPLY) 
-                    return a * b;
-                else if (opertype == ASSIGN) {
-                        if (left->getClass() == "Variable") {
-                            ((Variable*)left) -> setValue(b);
-                            cout << "HERE >>>>>>>> " << b << " <<<<<<<HERE" << endl;
-                            cout << "_____ " << ((Variable*)left)->getValue() << " ________" << endl;
-                            return b;
-                        }
-                    }
+        case MINUS:
+            return a - b;
+        case MULTIPLY:
+            return a * b;
+        case OR:
+            return (int) a || b;
+        case AND:
+            return (int) a && b;
+        case BITOR:
+            return a | b;
+        case XOR:
+            return a ^ b;
+        case BITAND:
+            return a & b;
+        case EQ:
+            return (int) a == b;
+        case NEQ:
+            return (int) a != b;
+        case LEQ:
+            return (int) a <= b;
+        case LT:
+            return (int) a < b;
+        case GEQ:
+            return (int) a >= b;
+        case GT:
+            return (int) a > b;
+        case SHL:
+            return a << b;
+        case SHR:
+            return a >> b;
+        case DIV:
+            return a / b;
+        case MOD:
+            return a % b;
+        case ASSIGN:                        
+            if (left->getClass() == "Variable") {
+                ((Variable*)left) -> setValue(b);
+                return b;
+            }     
+            
+        }
         return 0;
     }
     virtual const string getClass() const {
@@ -121,43 +173,78 @@ map <string, Variable*> variables;
 bool isDeclared(string name) {
     return variables.count(name) > 0;
 }
+bool isAbc(char ch) {
+    bool c1 = (ch >= 'a' && ch <= 'z');
+    bool c2 = (ch >= 'A' && ch <= 'Z');
+    return c1 || c2;
+}
+Lexem* get_oper(string codeline, int &pos) {
+    for (int op = 0; op < OP_NUM; op++) {
+        string subcodeline = codeline.substr(pos, OPERTEXT[op].size());
+        if (OPERTEXT[op] == subcodeline) {
+            pos += OPERTEXT[op].size();
+            return new Oper(op);
+        }
+    }
+    return nullptr;
+}
+Lexem* get_number(string codeline, int &pos) {
+    int num = 0;
+    int begin = pos;
+    int j = pos;
+    int cnt = 0;
+    for (; codeline[j] >= '0' && codeline[j] <= '9'; j++) {
+        num = num * 10 + codeline[j] - '0';
+        cnt++;
+    }
+    pos += cnt;
+    if ((pos - begin) == 0) {
+        return nullptr;
+    }
+    return new Number(num);
+}
+Lexem* get_variable(string codeline, int &pos) {
+    int begin = pos;
+    for (; isAbc(codeline[pos]); pos++) {
+    }
+    string subcode = codeline.substr(begin, pos - begin);
+    if ((pos - begin) == 0)
+        return nullptr;
+    if (isDeclared(subcode)) {
+        return variables[subcode];
+    } else {
+        Variable *new_var = new Variable(subcode);
+        variables[subcode] = new_var;
+        return new_var;
+    }
+}
 vector<Lexem*> parseLexem(
 	std::string codeline) {
         vector<Lexem *> infix;
         vector<string> lexems;
         string tmp = "";
-        for (int i = 0; i < codeline.size(); i++) {
-           if (codeline[i] != ' ' && codeline[i] != '\t') { 
-                tmp += codeline[i];
-           } else {
-                if (tmp.size() > 0) {
-                    cout << tmp << endl;
-                    lexems.push_back(tmp);
-                    tmp = "";
-                }
-           }
-        }
-        cout << tmp << endl;
-        lexems.push_back(tmp);
-        for (int i = 0; i < lexems.size(); i++) {
-            if (lexems[i][0] >= '0' && lexems[i][0] <= '9') {
-                int num = 0;
-                for (int j = 0; j < lexems[i].size(); j++) {
-                    num = num * 10 + lexems[i][j] - '0';
-                }
-                infix.push_back(new Number(num));
-            } else 
-                if (isOper(lexems[i][0])) {
-                    infix.push_back(new Oper(lexems[i][0]));
-                } else {
-                    if (isDeclared(lexems[i])) {
-                        infix.push_back(variables[lexems[i]]);
-                    } else {
-                        Variable *new_var = new Variable(lexems[i]);
-                        infix.push_back(new_var);
-                        variables[lexems[i]] = new_var;
-                    }
-                }
+        Lexem *lexem;
+        for (int i = 0; i < codeline.size();) {
+            if (codeline[i] == ' ' || codeline[i] == '\t') {
+                i++;
+                continue;
+            }
+            lexem = get_oper(codeline, i);
+            if (lexem != nullptr) {
+                 infix.push_back(lexem);
+                 continue;
+            }
+            lexem = get_number(codeline, i);
+            if (lexem != nullptr) {
+                 infix.push_back(lexem);
+                 continue;
+            }
+            lexem = get_variable(codeline, i);
+            if (lexem != nullptr) {
+                 infix.push_back(lexem);
+                 continue;
+            }
+            i++;
         }
         return infix;
 }
@@ -167,7 +254,6 @@ std::vector<Lexem *> buildPoliz(
         stack <Oper*> opstack;
         vector<Lexem *> poliz;
         for (int i = 0; i < infix.size(); i++) {
-            cout << infix[i]->getClass() << endl;
             if (infix[i]->getClass() == "Number") {
                 poliz.push_back(infix[i]);
                 //cout << ((Number*)infix[i])->getValue() << endl;
@@ -205,10 +291,9 @@ int evaluatePoliz(
 	std::vector<Lexem *> poliz) {
         stack <Lexem*> evalue;
         for (int i = 0; i < poliz.size(); i++) {
-            cout << poliz[i]->getClass() << " "  << endl;
+            //cout << poliz[i]->getClass() << " "  << endl;
             if (typeid(*(poliz[i])) == typeid(Number)) {
                 evalue.push(((Number*)poliz[i]));
-                cout << ((Number*)evalue.top())->getValue();
             } else if (typeid(*(poliz[i])) == typeid(Variable)) {\
                         evalue.push((Variable*)poliz[i]);
                     } else if (typeid(*(poliz[i])) == typeid(Oper)) {
@@ -241,7 +326,7 @@ int main() {
 		    value = evaluatePoliz(postfix);
 		    std::cout << value << std::endl;
             //variables["x"]->setValue(10);
-            printVariables();
+            //printVariables();
         }
 	}
 	return 0;
