@@ -44,7 +44,7 @@ string OPERTEXT[] = {
     "==", "!=",
     "<=", "<",
     ">=", ">",
-    "<<", ">>",
+    "shl", "shr",
     "+", "-",
     "*", "/", "%"
 };
@@ -161,14 +161,6 @@ public:
     }
     
 };
-   bool isOper(char ch) {
-    bool c1 = (ch == '+');
-    bool c2 = ch == '-';
-    bool c3 = ch == '/';
-    bool c4 = ch == '*';
-    bool c5 = ch == '=';
-    return c1 || c2 || c3 || c4 || c5;
-}
 map <string, Variable*> variables;
 bool isDeclared(string name) {
     return variables.count(name) > 0;
@@ -254,10 +246,10 @@ std::vector<Lexem *> buildPoliz(
         stack <Oper*> opstack;
         vector<Lexem *> poliz;
         for (int i = 0; i < infix.size(); i++) {
-            if (infix[i]->getClass() == "Number") {
+            string lexem_class = infix[i]->getClass();
+            if (lexem_class == "Number") {
                 poliz.push_back(infix[i]);
-                //cout << ((Number*)infix[i])->getValue() << endl;
-            } else if (infix[i]->getClass() == "Oper") {
+            } else if (lexem_class == "Oper") {
                         OPERATOR type = ((Oper*)infix[i])->getType();
                         if (type == LBRACKET) {
                             opstack.push((Oper*)infix[i]);
@@ -275,9 +267,9 @@ std::vector<Lexem *> buildPoliz(
                                     }
                                     opstack.push((Oper*)infix[i]);
                                 }
-                    } else if (infix[i]->getClass() == "Variable") {
+                    } else if (lexem_class == "Variable") {
                                 poliz.push_back(infix[i]);
-                        }
+                            }
 
         }
         while (!opstack.empty()) {
