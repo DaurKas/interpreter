@@ -2,19 +2,21 @@ CFLAGS := -Wall -Werror -lm -fsanitize=undefined -fsanitize=address
 INCLUDE:= -I./include
 SRC  := ./source
 BIN  := ./include
-SRCS := $(wildcard $(SRC)/*.c)
-EXEC := $(patsubst $(SRC)/%.c,$(BIN)/%,$(SRCS)) -- ЧТО ТО НЕ ТО
+SRCS := $(wildcard $(SRC)/*.cpp)
+OBJ  := $(SRCS:.cpp=.o)
+EXEC := bin/main
 .PHONY: all clean
-all: bin $(EXEC)
+.SUFFIXES: .cpp .o
+all: $(EXEC) bin
 	
 bin:
 	mkdir bin
 	
-$(BIN)/%: $(SRC)/%.c
-	@echo [Compiling]: $@
-	gcc $(CFLAGS) $< $(INCLUDE) -o $@.o
+$(EXEC): $(OBJ)
+	g++ $(CFLAGS) $(INCLUDE) $(OBJ) -o $@
 	
-	ЧТО ТО ДЛЯ МЭЙНА ?
-
+.cpp.o:
+	g++ -c $(CFLAGS) $(INCLUDE) $< -o $@
+	
 clean:
 	rm -r bin

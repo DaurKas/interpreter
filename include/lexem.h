@@ -1,24 +1,27 @@
+#ifndef LEXEM_H
+#define LEXEM_H
 #include "const.h"
 class Lexem {
 public:
     Lexem();
-    virtual const string getClass() const;
+    virtual LEXEM_TYPE getClass() const;
+    virtual int getValue() const;
 };
 class Number: public Lexem {
     int value;
 public:
     Number(int n);
     virtual int getValue() const;
-    virtual const string getClass() const;
+    LEXEM_TYPE getClass() const;
 };
 class Variable: public Lexem {
     string name;
     int value;
 public:
     Variable(string _name);
-    virtual int getValue();
+    int getValue() const;
     void setValue(int _value); 
-    virtual const string getClass() const;
+    LEXEM_TYPE getClass() const;
 };
  
 class Oper: public Lexem {
@@ -27,8 +30,9 @@ public:
     Oper(int op);
     virtual OPERATOR getType() const;
     int getPriority() const;
-    virtual int getValue (Lexem* left, Lexem* right) const;
-    virtual const string getClass() const;
+    int getValue (Lexem* left, Lexem* right) const;
+    LEXEM_TYPE getClass() const;
     
 };
-map <string, Variable*> variables;
+extern map<string, Variable*> variables;
+#endif

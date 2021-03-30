@@ -1,3 +1,5 @@
+#ifndef CONST_H
+#define CONST_H
 #include <string>
 #include <vector>
 #include <stack>
@@ -19,6 +21,11 @@ enum OPERATOR {
     PLUS, MINUS,
     MULTIPLY, DIV, MOD
 };
+enum LEXEM_TYPE {
+    NUMBER, OPER,
+    VARIABLE, LEXEM
+};
 extern int PRIORITY[];
 extern string OPERTEXT[];
-extern int OP_NUM; 
+extern int OP_NUM;
+#endif

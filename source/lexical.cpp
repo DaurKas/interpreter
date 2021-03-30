@@ -1,11 +1,13 @@
 #include "lexical.h"
+
+map <string, Variable*> variables;
 bool isDeclared(string name) {
     return variables.count(name) > 0;
 }
 bool isAbc(char ch) {
-    bool c1 = (ch >= 'a' && ch <= 'z');
-    bool c2 = (ch >= 'A' && ch <= 'Z');
-    return c1 || c2;
+    bool isLow = (ch >= 'a' && ch <= 'z');
+    bool isUpper = (ch >= 'A' && ch <= 'Z');
+    return isLow || isUpper;
 }
 Lexem* get_oper(string codeline, int &pos) {
     for (int op = 0; op < OP_NUM; op++) {
@@ -53,7 +55,7 @@ vector<Lexem*> parseLexem(
         vector<string> lexems;
         string tmp = "";
         Lexem *lexem;
-        for (int i = 0; i < codeline.size();) {
+        for (int i = 0; i < (int)codeline.size();) {
             if (codeline[i] == ' ' || codeline[i] == '\t') {
                 i++;
                 continue;

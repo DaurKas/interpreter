@@ -1,44 +1,49 @@
 #include "lexem.h"
 Lexem::Lexem() { };
-virtual const string Lexem::getClass() const {
-    return "Lexem";
+int Lexem::getValue() const {
+    cout << "You should not see this message" << endl;
+    return 0;
 }
+LEXEM_TYPE Lexem::getClass() const {
+    return LEXEM;
+}
+
 Number::Number(int n) {
     value = n;
 }
-virtual int Number::getValue() const{
+int Number::getValue() const{
     return value;
 }
-virtual const string Number::getClass() const {
-    return "Number";
+LEXEM_TYPE Number::getClass() const {
+    return NUMBER;
 }
 
 Variable::Variable(string _name) {
     name = _name;
 }
-virtual int Variable::getValue() {
+int Variable::getValue() const {
     return value;
 }
 void Variable::setValue(int _value) {
     value = _value;
     cout << name << " CHANGING VALUE TO " << _value << endl;
 }
-virtual const string Variable::getClass() const {
-    return "Variable";
+LEXEM_TYPE Variable::getClass() const {
+    return VARIABLE;
 }
  
 Oper::Oper(int op) {
     opertype = (OPERATOR)op;
 }
-virtual OPERATOR Oper::getType() const {
+OPERATOR Oper::getType() const {
     return opertype;
 }
 int Oper::getPriority() const {
     return PRIORITY[opertype]; 
 }
-virtual int Oper::getValue (Lexem* left, Lexem* right) const {
+int Oper::getValue (Lexem* left, Lexem* right) const {
     int a, b;
-    if (left->getClass() == "Variable")
+    /* if (left->getClass() == "Variable")
         a = ((Variable*)left)->getValue();
     else    
         a = ((Number*)left)->getValue();
@@ -46,6 +51,9 @@ virtual int Oper::getValue (Lexem* left, Lexem* right) const {
         b = ((Variable*)right)->getValue();
     else
         b = ((Number*)right)->getValue();
+    */
+    a = left->getValue();
+    b = right->getValue();
     switch(opertype) {
         case PLUS:
             return a + b;
@@ -84,19 +92,17 @@ virtual int Oper::getValue (Lexem* left, Lexem* right) const {
         case MOD:
             return a % b;
         case ASSIGN:                        
-            if (left->getClass() == "Variable") {
+            if (left->getClass() == VARIABLE) {
                 ((Variable*)left) -> setValue(b);
                 return b;
-            }     
+            }
+        default:
+            break;
             
         }
     return 0;
     }
-virtual const string Oper::getClass() const {
-    return "Oper";
+LEXEM_TYPE Oper::getClass() const {
+    return OPER;
 }
-    
-};
-bool isDeclared(string name) {
-    return variables.count(name) > 0;
-}
+

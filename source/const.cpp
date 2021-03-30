@@ -29,4 +29,3 @@ string OPERTEXT[] = {
     "*", "/", "%"
 };
 int OP_NUM = sizeof(PRIORITY) / sizeof(int);
-
