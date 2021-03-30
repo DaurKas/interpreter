@@ -7,7 +7,7 @@ OBJ  := $(SRCS:.cpp=.o)
 EXEC := bin/main
 .PHONY: all clean
 .SUFFIXES: .cpp .o
-all: $(EXEC) bin
+all: bin $(EXEC)
 	
 bin:
 	mkdir bin
