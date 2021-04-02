@@ -6,6 +6,7 @@ public:
     Lexem();
     virtual LEXEM_TYPE getClass() const;
     virtual int getValue() const;
+    virtual ~Lexem();
 };
 class Number: public Lexem {
     int value;
@@ -20,7 +21,9 @@ class Variable: public Lexem {
 public:
     Variable(string _name);
     int getValue() const;
-    void setValue(int _value); 
+    void setValue(int _value);
+    string getName();
+    bool inLabelTable();
     LEXEM_TYPE getClass() const;
 };
  
@@ -34,5 +37,13 @@ public:
     LEXEM_TYPE getClass() const;
     
 };
+class Goto: public Oper {
+    int row;
+public:
+    Goto(int row, int op);
+    void setRow(string label);
+    int getRow();
+};
 extern map<string, Variable*> variables;
+extern map<string, int> labels;
 #endif

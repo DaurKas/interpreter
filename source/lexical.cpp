@@ -1,5 +1,5 @@
 #include "lexical.h"
-
+map <string, int> labels;
 map <string, Variable*> variables;
 bool isDeclared(string name) {
     return variables.count(name) > 0;
@@ -79,3 +79,22 @@ vector<Lexem*> parseLexem(
         }
         return infix;
 }
+void initLabels(vector<Lexem*> &infix, int row) {
+    for (int i = 1; i < (int)infix.size(); i++) {
+        if ((infix[i - 1]->getClass() == VARIABLE) && (infix[i]->getClass() == OPER)) {
+            Variable *lexemvar = (Variable*)infix[i - 1];
+            Oper *lexemop = (Oper*)infix[i];
+            if (lexemop->getType() == COLON) {
+                labels[lexemvar->getName()] = row;
+                //delete infix[i - 1];
+                //delete infix[i];
+                infix[i - 1] = nullptr;
+                infix[i] = nullptr;
+                infix.erase(infix.begin() + i - 1);
+                infix.erase(infix.begin() + i);
+                i++;
+            }
+        }
+    }
+}
+

@@ -1,8 +1,11 @@
 #include "lexem.h"
+#include "lexical.h"
 Lexem::Lexem() { };
 int Lexem::getValue() const {
     cout << "You should not see this message" << endl;
     return 0;
+}
+Lexem::~Lexem() {
 }
 LEXEM_TYPE Lexem::getClass() const {
     return LEXEM;
@@ -27,6 +30,12 @@ int Variable::getValue() const {
 void Variable::setValue(int _value) {
     value = _value;
     cout << name << " CHANGING VALUE TO " << _value << endl;
+}
+string Variable::getName() {
+    return name;
+}
+bool Variable::inLabelTable() {
+    return labels.find(Variable::name) != labels.end(); 
 }
 LEXEM_TYPE Variable::getClass() const {
     return VARIABLE;
@@ -104,5 +113,14 @@ int Oper::getValue (Lexem* left, Lexem* right) const {
     }
 LEXEM_TYPE Oper::getClass() const {
     return OPER;
+}
+Goto::Goto(int row, int op): Oper::Oper(op) {
+    Goto::row = row;
+}
+void Goto::setRow(string label) {
+   Goto::row = labels[label]; 
+}
+int Goto::getRow() {
+    return row;
 }
 

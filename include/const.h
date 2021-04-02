@@ -7,7 +7,7 @@
 #include <map>
 using namespace std;
 enum OPERATOR {
-    LBRACKET, RBRACKET,
+    GOTO, LBRACKET, RBRACKET, COLON,
     ASSIGN,
     OR,
     AND,
