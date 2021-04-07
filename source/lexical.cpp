@@ -10,9 +10,9 @@ bool isAbc(char ch) {
     return isLow || isUpper;
 }
 bool isJump(OPERATOR op) {
-    bool isIf = op == IF || op == ELSE;
-    bool isWhile = op == WHILE || op == ENDWHILE;
-    bool isGoto = op == GOTO;
+    bool isIf = (op == IF) || (op == ELSE);
+    bool isWhile = (op == WHILE) || (op == ENDWHILE);
+    bool isGoto = (op == GOTO);
     return isIf || isWhile || isGoto;
 }
 Lexem* get_oper(string codeline, int &pos) {

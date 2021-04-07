@@ -20,27 +20,28 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                 return lexemgoto->getRow();
             } else if (lexemop->getType() == IF || lexemop->getType() == WHILE) {
                         Goto *lexemgoto = (Goto*)lexemop;
-                        int rvalue = evalue.top()->getValue();
-                        evalue.pop();
-                        if (!rvalue) {
-                            return lexemgoto->getRow();
+                        if (evalue.top()->getClass() == NUMBER) {
+                            int rvalue = evalue.top()->getValue();
+                            evalue.pop();
+                            if (!rvalue) {
+                                return lexemgoto->getRow();
+                            }
                         }
-                    }
-                    else {
-                        Lexem *a, *b;
-                        b = evalue.top();
-                        evalue.pop();
-                        a = evalue.top();
-                        evalue.pop();
-                        evalue.push(new Number((lexemop)->getValue(a, b)));
-                    }
+            } else {
+                    Lexem *a, *b;
+                    b = evalue.top();
+                    evalue.pop();
+                    a = evalue.top();
+                    evalue.pop();
+                    evalue.push(new Number((lexemop)->getValue(a, b)));
+                }
         } else if (lexem->getClass() == NUMBER) {
                     Number *lexemnum = (Number*)lexem;
                     evalue.push(lexemnum);
-                } else if (lexem->getClass() == VARIABLE) {
-                            Variable *lexemvar = (Variable*)lexem;
-                            evalue.push(lexemvar);
-                        }
+        } else if (lexem->getClass() == VARIABLE) {
+                    Variable *lexemvar = (Variable*)lexem;
+                    evalue.push(lexemvar);
+        }
     }
     return row + 1;
 }

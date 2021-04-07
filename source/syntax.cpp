@@ -11,32 +11,32 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
             if (lexemvar->inLabelTable()) {
                 joinGotoAndLabel(lexemvar, opstack);
             } else {
-                poliz.push_back(lexem);
+                poliz.push_back(lexemvar);
             }
         } else if (lexem->getClass() == NUMBER) {
-                    poliz.push_back(lexem);
-                } else if (lexem->getClass() == OPER) {
-                            OPERATOR type = ((Oper*)lexem)->getType();
-                            if (type == ENDIF) 
-                                continue;
-                            if (type == LBRACKET) {
-                                opstack.push((Oper*)lexem);
-                            } else if (type == RBRACKET) {
-                                        while (opstack.top()->getType() != LBRACKET) {
-                                            poliz.push_back(opstack.top());
-                                            opstack.pop();
-                                        }
-                                        opstack.pop();
-                                    } else {
-                                        int priority = ((Oper*)lexem) -> getPriority();
-                                        while (!opstack.empty() && opstack.top()->getPriority() >= priority) {
-                                            poliz.push_back(opstack.top());
-                                            opstack.pop();
-                                        }
-                                        opstack.push((Oper*)lexem);
-
-                                    }
+                    poliz.push_back((Number*)lexem);
+        } else if (lexem->getClass() == OPER) {
+                    OPERATOR type = ((Oper*)lexem)->getType();
+                    if (type == ENDIF || type == THEN) 
+                        continue;
+                    if (type == LBRACKET) {
+                        opstack.push((Oper*)lexem);
+                    } else if (type == RBRACKET) {
+                        while (opstack.top()->getType() != LBRACKET) {
+                            poliz.push_back(opstack.top());
+                            opstack.pop();
                         }
+                        opstack.pop();
+                    } else {
+                        int priority = ((Oper*)lexem) -> getPriority();
+                        while (!opstack.empty() && opstack.top()->getPriority() >= priority) {
+                            poliz.push_back(opstack.top());
+                            opstack.pop();
+                        }
+                        opstack.push((Oper*)lexem);
+
+                    }
+        }
     }
     while (!opstack.empty()) {
         poliz.push_back(opstack.top());

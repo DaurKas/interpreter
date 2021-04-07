@@ -100,7 +100,7 @@ int Oper::getValue (Lexem* left, Lexem* right) const {
             return a / b;
         case MOD:
             return a % b;
-        case ASSIGN:                        
+        case ASSIGN:
             if (left->getClass() == VARIABLE) {
                 ((Variable*)left) -> setValue(b);
                 return b;

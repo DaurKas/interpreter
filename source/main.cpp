@@ -26,6 +26,7 @@ int main() {
         row = evaluatePoliz(postfixlines[row], row);
     }
     printVariables();
+    /*
     for (const auto &infix: infixlines) {
         for (int i = 0; i < (int)infix.size(); i++) {
             //cout << "DELETE " << infix[i]->getClass() << endl;
@@ -33,7 +34,7 @@ int main() {
                 delete infix[i];
             }
         }
-    }
+    } */
     /*for (const auto &postfix: postfixlines) {
         for (int i = 0; i < (int)postfix.size(); i++) {
             delete postfix[i];
