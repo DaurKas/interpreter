@@ -109,6 +109,8 @@ void initJumps(vector<vector<Lexem*>> &infixLines) {
     stack <Goto*> stackIf;
     for (int row = 0; row < (int)infixLines.size(); row++) {
         for (int i = 0; i < (int)infixLines[row].size(); i++) {
+            if (infixLines[row][i] == nullptr)
+                continue;
             if (infixLines[row][i]->getClass() == OPER) {
                 Oper *lexemop = (Oper*) infixLines[row][i];
                 if (lexemop->getType() == IF) {
@@ -130,6 +132,8 @@ void initJumps(vector<vector<Lexem*>> &infixLines) {
     stack <Goto*> stackWhile;
     for (int row = 0; row < (int)infixLines.size(); row++) {
         for (int i = 0; i < (int)infixLines[row].size(); i++) {
+            if (infixLines[row][i] == nullptr)
+                continue;
             if (infixLines[row][i]->getClass() == OPER) {
                 Oper *lexemop = (Oper*) infixLines[row][i];
                 if (lexemop->getType() == WHILE) {
