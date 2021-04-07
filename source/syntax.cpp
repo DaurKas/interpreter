@@ -17,6 +17,8 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
                     poliz.push_back(lexem);
                 } else if (lexem->getClass() == OPER) {
                             OPERATOR type = ((Oper*)lexem)->getType();
+                            if (type == ENDIF) 
+                                continue;
                             if (type == LBRACKET) {
                                 opstack.push((Oper*)lexem);
                             } else if (type == RBRACKET) {
@@ -36,34 +38,6 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
                                     }
                         }
     }
-   /* for (int i = 0; i < (int)infix.size(); i++) {
-        LEXEM_TYPE lexem_class = infix[i]->getClass();
-        if (lexem_class == NUMBER) {
-            poliz.push_back(infix[i]);
-        } else if (lexem_class == OPER) {
-                OPERATOR type = ((Oper*)infix[i])->getType();
-                if (type == LBRACKET) {
-                        opstack.push((Oper*)infix[i]);
-                } else if (type == RBRACKET) {
-                            while (opstack.top()->getType() != LBRACKET) {
-                                poliz.push_back(opstack.top());
-                                opstack.pop();
-                            }
-                            opstack.pop();
-                        } else {
-                            int priority = ((Oper*)infix[i])->getPriority();
-                            while (!opstack.empty() && opstack.top()->getPriority() >= priority) {
-                                poliz.push_back(opstack.top());
-                                opstack.pop();
-                                }
-                            opstack.push((Oper*)infix[i]);
-                            }
-                    } else if (lexem_class == VARIABLE) {
-                                poliz.push_back(infix[i]);
-                            }
-
-    }
-    */
     while (!opstack.empty()) {
         poliz.push_back(opstack.top());
         opstack.pop();
@@ -73,7 +47,6 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
 void joinGotoAndLabel(Variable *lexemvar, stack<Oper*> stack) {
     if (stack.top() -> getType() == GOTO) {
         Goto *lexemgoto = (Goto*)stack.top();
-        lexemgoto->setRow(lexemvar->getName());
-        cout << "JOIN LABEL AND GOTO " << lexemgoto->getRow() << endl;
+        lexemgoto->setRow(labels[lexemvar->getName()]);
     }
 }

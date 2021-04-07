@@ -40,8 +40,9 @@ public:
 class Goto: public Oper {
     int row;
 public:
-    Goto(int row, int op);
-    void setRow(string label);
+    enum { UNDEFINED = -INT32_MAX };
+    Goto(int op);
+    void setRow(int row);
     int getRow();
 };
 extern map<string, Variable*> variables;

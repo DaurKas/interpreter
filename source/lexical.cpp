@@ -9,11 +9,19 @@ bool isAbc(char ch) {
     bool isUpper = (ch >= 'A' && ch <= 'Z');
     return isLow || isUpper;
 }
+bool isJump(OPERATOR op) {
+    bool isIf = op == IF || op == ELSE;
+    bool isWhile = op == WHILE || op == ENDWHILE;
+    bool isGoto = op == GOTO;
+    return isIf || isWhile || isGoto;
+}
 Lexem* get_oper(string codeline, int &pos) {
     for (int op = 0; op < OP_NUM; op++) {
         string subcodeline = codeline.substr(pos, OPERTEXT[op].size());
         if (OPERTEXT[op] == subcodeline) {
             pos += OPERTEXT[op].size();
+            if (isJump((OPERATOR)op)) 
+                return new Goto(op);
             return new Oper(op);
         }
     }
@@ -86,15 +94,58 @@ void initLabels(vector<Lexem*> &infix, int row) {
             Oper *lexemop = (Oper*)infix[i];
             if (lexemop->getType() == COLON) {
                 labels[lexemvar->getName()] = row;
-                //delete infix[i - 1];
-                //delete infix[i];
                 infix[i - 1] = nullptr;
                 infix[i] = nullptr;
-                infix.erase(infix.begin() + i - 1);
-                infix.erase(infix.begin() + i);
+                //infix.erase(infix.begin() + i - 1);
+                //infix.erase(infix.begin() + i);
+                delete infix[i - 1];
+                delete infix[i];
                 i++;
             }
         }
+    }
+}
+void initJumps(vector<vector<Lexem*>> &infixLines) {
+    stack <Goto*> stackIf;
+    for (int row = 0; row < (int)infixLines.size(); row++) {
+        for (int i = 0; i < (int)infixLines[row].size(); i++) {
+            if (infixLines[row][i]->getClass() == OPER) {
+                Oper *lexemop = (Oper*) infixLines[row][i];
+                if (lexemop->getType() == IF) {
+                    stackIf.push((Goto*)lexemop);
+                }
+                if (lexemop->getType() == ELSE) {
+                    stackIf.top()->setRow(row + 1);
+                    stackIf.pop();
+                    stackIf.push((Goto*)lexemop);
+                }
+                if (lexemop->getType() == ENDIF) {
+                    stackIf.top()->setRow(row + 1);
+                    stackIf.pop();
+                }
+            }
+        }
+    
+    }
+    stack <Goto*> stackWhile;
+    for (int row = 0; row < (int)infixLines.size(); row++) {
+        for (int i = 0; i < (int)infixLines[row].size(); i++) {
+            if (infixLines[row][i]->getClass() == OPER) {
+                Oper *lexemop = (Oper*) infixLines[row][i];
+                if (lexemop->getType() == WHILE) {
+                    Goto *lexemgoto = (Goto*) lexemop;
+                    lexemgoto->setRow(row);
+                    stackWhile.push(lexemgoto);
+                }
+                if (lexemop->getType() == ENDWHILE) {
+                    Goto *lexemgoto = (Goto*) lexemop;
+                    lexemgoto->setRow(stackWhile.top()->getRow());
+                    stackWhile.top()->setRow(row + 1);
+                    stackWhile.pop();
+                }
+            }
+        }
+    
     }
 }
 

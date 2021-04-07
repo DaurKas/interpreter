@@ -7,6 +7,9 @@
 #include <map>
 using namespace std;
 enum OPERATOR {
+    IF, THEN,
+    ELSE, ENDIF,
+    WHILE, ENDWHILE,
     GOTO, LBRACKET, RBRACKET, COLON,
     ASSIGN,
     OR,

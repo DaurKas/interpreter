@@ -14,6 +14,9 @@ int PRIORITY[] = {
     10, 10, 10
 };
 string OPERTEXT[] = {
+    "if", "then",
+    "else", "endif",
+    "while", "endwhile",
     "goto", "(", ")", "?",
     ":=",
     "or",

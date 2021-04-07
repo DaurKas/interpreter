@@ -114,11 +114,12 @@ int Oper::getValue (Lexem* left, Lexem* right) const {
 LEXEM_TYPE Oper::getClass() const {
     return OPER;
 }
-Goto::Goto(int row, int op): Oper::Oper(op) {
-    Goto::row = row;
+Goto::Goto(int op) : Oper(op){
+    Goto::row = UNDEFINED;
+    //opertype = (OPERATOR)op;
 }
-void Goto::setRow(string label) {
-   Goto::row = labels[label]; 
+void Goto::setRow(int row) {
+   Goto::row = row;
 }
 int Goto::getRow() {
     return row;
