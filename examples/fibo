@@ -1,0 +1,11 @@
+first := 0
+second := 1
+tmp := first
+n := 8
+while ((n - 2) > 0) then
+    tmp := first
+    first := second
+    second := tmp + second
+    n := n - 1
+endwhile
+0 print second

@@ -64,6 +64,9 @@ int Oper::getValue (Lexem* left, Lexem* right) const {
     a = left->getValue();
     b = right->getValue();
     switch(opertype) {
+        case PRINT:
+            cout << b << endl;
+            return 0;
         case PLUS:
             return a + b;
         case MINUS:

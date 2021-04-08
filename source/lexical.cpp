@@ -20,6 +20,7 @@ Lexem* get_oper(string codeline, int &pos) {
         string subcodeline = codeline.substr(pos, OPERTEXT[op].size());
         if (OPERTEXT[op] == subcodeline) {
             pos += OPERTEXT[op].size();
+            //cout << "GET OPER: " << op << endl;
             if (isJump((OPERATOR)op)) 
                 return new Goto(op);
             return new Oper(op);
@@ -114,14 +115,17 @@ void initJumps(vector<vector<Lexem*>> &infixLines) {
             if (infixLines[row][i]->getClass() == OPER) {
                 Oper *lexemop = (Oper*) infixLines[row][i];
                 if (lexemop->getType() == IF) {
+                    cout << "PUSHING IF " << row << endl;
                     stackIf.push((Goto*)lexemop);
                 }
                 if (lexemop->getType() == ELSE) {
+                    cout << "ELSE CASE " << row + 1 << endl;
                     stackIf.top()->setRow(row + 1);
                     stackIf.pop();
                     stackIf.push((Goto*)lexemop);
                 }
                 if (lexemop->getType() == ENDIF) {
+                    cout << "ENDIF CASE " << row + 1 << endl;
                     stackIf.top()->setRow(row + 1);
                     stackIf.pop();
                 }

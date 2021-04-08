@@ -1,0 +1,7 @@
+x := 3
+if (x > 4) then
+x := 1
+else
+x := 5
+endif
+y := 5

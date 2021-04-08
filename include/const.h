@@ -7,6 +7,7 @@
 #include <map>
 using namespace std;
 enum OPERATOR {
+    PRINT,
     IF, THEN,
     ELSE, ENDIF,
     WHILE, ENDWHILE,

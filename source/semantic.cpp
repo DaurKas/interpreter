@@ -3,6 +3,7 @@
 #include "lexical.h"
 int evaluatePoliz(vector<Lexem *> &poliz, int row) {
     stack <Lexem*> evalue;
+    vector <Lexem*> toDelete;
     /* if (poliz[0] == nullptr) {
         cout << "NULL" << endl;
         return 0;
@@ -24,6 +25,9 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                             int rvalue = evalue.top()->getValue();
                             evalue.pop();
                             if (!rvalue) {
+                                for (const auto &lexem: toDelete) {
+                                    delete lexem;
+                                }
                                 return lexemgoto->getRow();
                             }
                         }
@@ -33,7 +37,9 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                     evalue.pop();
                     a = evalue.top();
                     evalue.pop();
-                    evalue.push(new Number((lexemop)->getValue(a, b)));
+                    Number *newnum = new Number((lexemop)->getValue(a, b));
+                    evalue.push((Number*)newnum);
+                    toDelete.push_back(newnum);
                 }
         } else if (lexem->getClass() == NUMBER) {
                     Number *lexemnum = (Number*)lexem;
@@ -42,6 +48,9 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                     Variable *lexemvar = (Variable*)lexem;
                     evalue.push(lexemvar);
         }
+    }
+    for (const auto &lexem: toDelete) {
+        delete lexem;
     }
     return row + 1;
 }

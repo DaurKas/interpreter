@@ -17,6 +17,7 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
                     poliz.push_back((Number*)lexem);
         } else if (lexem->getClass() == OPER) {
                     OPERATOR type = ((Oper*)lexem)->getType();
+                    //cout << "BUILDING OPER: " << type << endl;
                     if (type == ENDIF || type == THEN) 
                         continue;
                     if (type == LBRACKET) {

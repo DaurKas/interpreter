@@ -1,8 +1,9 @@
 #include "const.h"
 int PRIORITY[] = {
-    -2, -2,
-    -2, -2,
-    -2, -1,
+    -1,
+    -1, -1,
+    -1, -1,
+    -1, -1,
     -1, -1, -1, -1,
     0,
     1,
@@ -17,6 +18,7 @@ int PRIORITY[] = {
     10, 10, 10
 };
 string OPERTEXT[] = {
+    "print",
     "if", "then",
     "else", "endif",
     "while", "endwhile",
