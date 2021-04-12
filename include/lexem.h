@@ -20,6 +20,7 @@ class Variable: public Lexem {
     int value;
 public:
     Variable(string _name);
+    Variable();
     int getValue() const;
     void setValue(int _value);
     string getName();
@@ -33,10 +34,11 @@ public:
     Oper(int op);
     virtual OPERATOR getType() const;
     int getPriority() const;
-    int getValue (Lexem* left, Lexem* right) const;
+    Lexem *getRes (Lexem* left, Lexem* right) const;
     LEXEM_TYPE getClass() const;
     
 };
+
 class Goto: public Oper {
     int row;
 public:
@@ -45,6 +47,26 @@ public:
     void setRow(int row);
     int getRow();
 };
+
+class Pointer: public Variable {
+    Variable **ptr;
+    int pos;
+    int size;
+public:
+    Pointer(string name);
+    void setPtr(Variable *var_ptr);
+    void allocate(int size);
+    LEXEM_TYPE getClass() const;
+    int getValue() const;
+    Variable *getPtr() const;
+    void setValue(int val);
+    void setPos(int pos);
+    void deletePtr();
+    int getSize();
+    int getPos();
+    ~Pointer();
+};
+
 extern map<string, Variable*> variables;
 extern map<string, int> labels;
 #endif

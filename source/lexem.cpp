@@ -24,12 +24,14 @@ LEXEM_TYPE Number::getClass() const {
 Variable::Variable(string _name) {
     name = _name;
 }
+Variable::Variable() {
+    name = "test";
+}
 int Variable::getValue() const {
     return value;
 }
 void Variable::setValue(int _value) {
     value = _value;
-    cout << name << " CHANGING VALUE TO " << _value << endl;
 }
 string Variable::getName() {
     return name;
@@ -50,69 +52,85 @@ OPERATOR Oper::getType() const {
 int Oper::getPriority() const {
     return PRIORITY[opertype]; 
 }
-int Oper::getValue (Lexem* left, Lexem* right) const {
+Lexem* Oper::getRes (Lexem* left, Lexem* right) const {
     int a, b;
-    /* if (left->getClass() == "Variable")
-        a = ((Variable*)left)->getValue();
-    else    
-        a = ((Number*)left)->getValue();
-    if (left->getClass() == "Variable")
-        b = ((Variable*)right)->getValue();
-    else
-        b = ((Number*)right)->getValue();
-    */
-    a = left->getValue();
-    b = right->getValue();
+    if (left != nullptr) {
+        a = left->getValue();
+    }
+    if (right->getClass() == POINTER) {
+        b = (((Pointer*)right)->getValue());
+    } else {
+        b = right->getValue();
+    }
     switch(opertype) {
+        case SIZE: {
+            Pointer *ptr = (Pointer*)left;
+            ptr->allocate(b);
+            return ptr;
+        }
+        case DEREF: {
+            Pointer *ptr = (Pointer *)left;
+            return ptr->getPtr();
+        }
         case PRINT:
             cout << b << endl;
             return 0;
-        case PLUS:
-            return a + b;
+        case PLUS: {
+            if (left->getClass() == POINTER) {
+                Pointer *ptr = (Pointer*)left;
+                ptr->setPos(b);
+                return ptr;
+            }
+            return new Number(a + b);
+        }
         case MINUS:
-            return a - b;
+            return new Number(a - b);
         case MULTIPLY:
-            return a * b;
+            return new Number(a * b);
         case OR:
-            return (int) a || b;
+            return new Number((int) a || b);
         case AND:
-            return (int) a && b;
+            return new Number((int) a && b);
         case BITOR:
-            return a | b;
+            return new Number(a | b);
         case XOR:
-            return a ^ b;
+            return new Number(a ^ b);
         case BITAND:
-            return a & b;
+            return new Number(a & b);
         case EQ:
-            return (int) a == b;
+            return new Number((int) a == b);
         case NEQ:
-            return (int) a != b;
+            return new Number((int) a != b);
         case LEQ:
-            return (int) a <= b;
+            return new Number((int) a <= b);
         case LT:
-            return (int) a < b;
+            return new Number((int) a < b);
         case GEQ:
-            return (int) a >= b;
+            return new Number((int) a >= b);
         case GT:
-            return (int) a > b;
+            return new Number((int) a > b);
         case SHL:
-            return a << b;
+            return new Number(a << b);
         case SHR:
-            return a >> b;
+            return new Number(a >> b);
         case DIV:
-            return a / b;
+            return new Number(a / b);
         case MOD:
-            return a % b;
+            return new Number(a % b);
         case ASSIGN:
+            if (left->getClass() == POINTER) {
+                (((Pointer*)left) ->getPtr()) -> setValue(b);
+                return left;
+            }
             if (left->getClass() == VARIABLE) {
                 ((Variable*)left) -> setValue(b);
-                return b;
+                return new Number(b);
             }
         default:
             break;
             
         }
-    return 0;
+    return new Number(0);
     }
 LEXEM_TYPE Oper::getClass() const {
     return OPER;
@@ -127,4 +145,57 @@ void Goto::setRow(int row) {
 int Goto::getRow() {
     return row;
 }
-
+Pointer::Pointer(string name): Variable(name) {
+    ptr = nullptr;
+    pos = 0;
+    size = 0;
+}
+void Pointer::setPtr(Variable *var_ptr) {
+    *ptr = var_ptr;
+}
+Variable* Pointer::getPtr() const{
+    if (size > 0)
+        return ptr[pos];
+    return nullptr;
+}
+void Pointer::allocate(int size) {
+    Pointer::size = size;
+    ptr = new Variable*[size];
+    for (int i = 0; i < size; i++) {
+        string name = "el";
+        ptr[i] = new Variable(name);
+    }
+}
+int Pointer::getValue() const{
+    if (ptr != nullptr) {
+        return (*(ptr + pos))->getValue();
+    }
+    return 0;
+}
+void Pointer::setValue(int val) {
+    (*(ptr))->setValue(val);
+}
+LEXEM_TYPE Pointer::getClass() const{
+    return POINTER;
+}
+void Pointer::setPos(int pos) {
+    Pointer::pos = pos;
+}
+void Pointer::deletePtr() {
+    if (ptr != nullptr)
+        delete ptr;
+}
+int Pointer::getSize() {
+    return size;
+}
+int Pointer::getPos() {
+    return pos;
+}
+Pointer::~Pointer() {
+    if (ptr != nullptr) {
+        for (int i = 0; i < size; i++) {
+            delete ptr[i];
+        }
+        delete[] ptr;
+    }
+}

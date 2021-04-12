@@ -53,13 +53,19 @@ Lexem* get_variable(string codeline, int &pos) {
     if (isDeclared(subcode)) {
         return variables[subcode];
     } else {
+        if (codeline[pos] == '[') {
+            Pointer *new_ptr = new Pointer(subcode);
+            variables[subcode] = new_ptr;
+            cout << "PTR::: " << new_ptr << endl;
+            return new_ptr;
+        }
         Variable *new_var = new Variable(subcode);
         variables[subcode] = new_var;
         return new_var;
     }
 }
 vector<Lexem*> parseLexem(
-	std::string codeline) {
+	std::string codeline, vector<Lexem*> &toDelete) {
         vector<Lexem *> infix;
         vector<string> lexems;
         string tmp = "";
@@ -81,8 +87,8 @@ vector<Lexem*> parseLexem(
             }
             lexem = get_variable(codeline, i);
             if (lexem != nullptr) {
-                 infix.push_back(lexem);
-                 continue;
+                infix.push_back(lexem);
+                continue;
             }
             i++;
         }
@@ -97,8 +103,6 @@ void initLabels(vector<Lexem*> &infix, int row) {
                 labels[lexemvar->getName()] = row;
                 infix[i - 1] = nullptr;
                 infix[i] = nullptr;
-                //infix.erase(infix.begin() + i - 1);
-                //infix.erase(infix.begin() + i);
                 delete infix[i - 1];
                 delete infix[i];
                 i++;

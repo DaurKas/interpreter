@@ -16,4 +16,5 @@ make all
 ```
 ./bin/main examples/test_if
 ./bin/main examples/fibo
+./bin/main examples/arrays
 ```

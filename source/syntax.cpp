@@ -1,12 +1,12 @@
 #include "syntax.h"
-std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
+std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix, vector<Lexem*> &toDelete) {
     stack <Oper*> opstack;
     vector<Lexem *> poliz;
     for (const auto lexem: infix) {
         if (lexem == nullptr) {
             continue;
         }
-        if (lexem->getClass() == VARIABLE) {
+        if (lexem->getClass() == VARIABLE || lexem->getClass() == POINTER) {
             Variable *lexemvar = (Variable*)lexem;
             if (lexemvar->inLabelTable()) {
                 joinGotoAndLabel(lexemvar, opstack);
@@ -17,7 +17,6 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
                     poliz.push_back((Number*)lexem);
         } else if (lexem->getClass() == OPER) {
                     OPERATOR type = ((Oper*)lexem)->getType();
-                    //cout << "BUILDING OPER: " << type << endl;
                     if (type == ENDIF || type == THEN) 
                         continue;
                     if (type == LBRACKET) {
@@ -28,6 +27,20 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix) {
                             opstack.pop();
                         }
                         opstack.pop();
+                    } else if (type == ARR_LBRACKET) {
+                       opstack.push((Oper*)lexem); 
+                    } else if (type == ARR_RBRACKET) {
+                        while (opstack.top()->getType() != ARR_LBRACKET) {
+                            poliz.push_back(opstack.top());
+                            opstack.pop();
+                        }
+                        opstack.pop();
+                        Oper *plus = new Oper(PLUS);
+                        Oper *deref = new Oper(DEREF);
+                        poliz.push_back(plus);
+                        poliz.push_back(deref);
+                        toDelete.push_back(plus);
+                        toDelete.push_back(deref);
                     } else {
                         int priority = ((Oper*)lexem) -> getPriority();
                         while (!opstack.empty() && opstack.top()->getPriority() >= priority) {

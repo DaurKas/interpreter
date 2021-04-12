@@ -2,6 +2,9 @@
 int PRIORITY[] = {
     -1,
     -1, -1,
+    -1,
+    -1,
+    -1, -1,
     -1, -1,
     -1, -1,
     -1, -1, -1, -1,
@@ -18,6 +21,9 @@ int PRIORITY[] = {
     10, 10, 10
 };
 string OPERTEXT[] = {
+    "size",
+    "[", "]",
+    "deref",
     "print",
     "if", "then",
     "else", "endif",

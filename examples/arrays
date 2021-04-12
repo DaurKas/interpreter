@@ -1,0 +1,10 @@
+arr[0] size 100
+i := 0
+sum := 0
+while (i < 100) then
+    arr[i] := i
+    sum := sum + arr[i]
+    0 print arr[i]
+    i := i + 1
+endwhile
+0 print arr[50]
