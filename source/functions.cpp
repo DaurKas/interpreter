@@ -36,6 +36,9 @@ Number *getValue(vector<Lexem*> arguments) {
         currentArgs.push_back(arguments.getValue());
     }
     while (row >= 0 && row < (int)poliz.size()) {
-        row = evaluatePoliz(poliz[row], row, args, currentArgs);
+        row = evaluatePoliz(poliz[row], row, *this);
     }
+    Number *ret = valStack.top();
+    valStack.pop();
+    return ret;
 }

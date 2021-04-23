@@ -58,6 +58,10 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
             } else if (lexemop->getType() == ENDARG) {
                 Function *func = (Function*)evalue.top();
                 Lexem *res = func->getValue(args);
+            } else if (lexemop->getType() == ENDFUNCTION) {
+                Number *ret = evalue.top();
+                evalue.pop();
+                valStack.push(ret);
             } else {
                 Lexem *a, *b;
                 b = evalue.top();

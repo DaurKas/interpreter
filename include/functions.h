@@ -18,6 +18,7 @@ private:
     Space space;
     vector<Variable*> args;
     stack<Vector<int>> argStack;
+    stack<Number*> valStack;
     vector<Lexem*> toDelete;
     int argc;
     int beginRow;
