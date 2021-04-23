@@ -4,6 +4,7 @@
 int evaluatePoliz(vector<Lexem *> &poliz, int row) {
     stack <Lexem*> evalue;
     vector <Lexem*> toDelete;
+    vector <Lexem*> args;
     /* if (poliz[0] == nullptr) {
         cout << "NULL" << endl;
         return 0;
@@ -51,6 +52,12 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                     evalue.push(a);
                 }
                 
+            } else if (lexemop->getType() == DELIM) {
+                args.push(evalue.top());
+                evalue.pop;
+            } else if (lexemop->getType() == ENDARG) {
+                Function *func = (Function*)evalue.top();
+                Lexem *res = func->getValue(args);
             } else {
                 Lexem *a, *b;
                 b = evalue.top();

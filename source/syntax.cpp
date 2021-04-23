@@ -27,7 +27,7 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix, vector<Lexem*
                             opstack.pop();
                         }
                         opstack.pop();
-                    } else if (type == ARR_LBRACKET) {
+                    } else if (type == ARR_LBRACKET || type == ARG_LBRACKET) {
                        opstack.push((Oper*)lexem); 
                     } else if (type == ARR_RBRACKET) {
                         while (opstack.top()->getType() != ARR_LBRACKET) {
@@ -41,6 +41,15 @@ std::vector<Lexem *> buildPoliz(const std::vector<Lexem *> &infix, vector<Lexem*
                         poliz.push_back(deref);
                         toDelete.push_back(plus);
                         toDelete.push_back(deref);
+                    } else if (type == ARG_RBRACKET) {
+                        while (opstack.top()->getType() != ARR_LBRACKET) {
+                            poliz.push_back(opstack.top());
+                            opstack.pop();
+                        }
+                        opstack.pop();
+                        Oper *argend = new Oper(ENDARG);
+                        poliz.push_back(argend)'
+                        toDelete.push_back(argend);
                     } else {
                         int priority = ((Oper*)lexem) -> getPriority();
                         while (!opstack.empty() && opstack.top()->getPriority() >= priority) {

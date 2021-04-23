@@ -36,8 +36,8 @@ void Variable::setValue(int _value) {
 string Variable::getName() {
     return name;
 }
-bool Variable::inLabelTable() {
-    return labels.find(Variable::name) != labels.end(); 
+bool Variable::inLabelTable(Space localSpace) {
+    return localSpace.labels.find(Variable::name) != labels.end(); 
 }
 LEXEM_TYPE Variable::getClass() const {
     return VARIABLE;

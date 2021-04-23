@@ -7,6 +7,10 @@
 #include <map>
 using namespace std;
 enum OPERATOR {
+    INITFUNCTION, ENDFUNCTION,
+    DELIM,
+    ENDARG,
+    ARG_LBRACKET, ARG_RBRACKET,
     SIZE,
     ARR_LBRACKET, ARR_RBRACKET,
     DEREF,
@@ -29,6 +33,7 @@ enum OPERATOR {
     MULTIPLY, DIV, MOD
 };
 enum LEXEM_TYPE {
+    FUNCTION,
     POINTER,
     NUMBER, OPER,
     VARIABLE, LEXEM

@@ -16,15 +16,19 @@ int main(int argc, char **argv) {
 	std::string codeline;
     vector<vector<Lexem*>> infixlines, postfixlines;
     vector<Lexem*> toDelete;
+    int currentRow = 0;
     while (getline(fin, codeline)) {
         cout << codeline << endl;
-        infixlines.push_back(parseLexem(codeline, toDelete));
-    }
-    for (int row = 0; row < (int)infixlines.size(); row++) {
-        initLabels(infixlines[row], row);
+        infixlines.push_back(parseLexem(codeline, toDelete, currentSpace, currentFunction, currentRow));
+        currentRow++;
     }
     initJumps(infixlines);
-    for (const auto &infix: infixlines) {
+    for (auto it = functions.begin(); it != functions.end(); ++it) {
+        it->second->buildFunction(infixLines);
+    }
+    Function *main = functions["main"];
+    Number *res = main.getValue();
+    /*for (const auto &infix: infixlines) {
         postfixlines.push_back(buildPoliz(infix, toDelete));
     }
     int row = 0;
@@ -44,6 +48,6 @@ int main(int argc, char **argv) {
     }
     for (int i = 0; i < (int)toDelete.size(); i++) {
         delete toDelete[i];
-    }
+    } */
     return 0;
 }
