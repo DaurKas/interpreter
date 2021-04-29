@@ -66,7 +66,11 @@ public:
     int getPos();
     ~Pointer();
 };
-
+struct Space {
+    map<string, Variable*> variables;
+    map<string, int> labels;
+    stack<Lexem*> evalue;
+};
 extern map<string, Variable*> variables;
 extern map<string, int> labels;
 #endif

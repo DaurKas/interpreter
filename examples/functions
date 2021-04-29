@@ -1,0 +1,19 @@
+FUNCTION sum_( x , y _)
+    z := x + y
+endfunction z
+FUNCTION fibo_( n _)
+    if (n <= 2) then
+        x := 1
+        0 print n
+    else
+        0 print n
+        x := fibo_( n - 1 _) + fibo_( n - 2 _)
+    endif
+    0 print n
+endfunction x
+FUNCTION main_( a _)
+    a := 4
+    b := 2
+    0 print sum_(a + b , a _)
+    0 print fibo_( a _)
+endfunction 0

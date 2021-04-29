@@ -1,8 +1,8 @@
 #include "lexical.h"
-//map <string, int> labels;
-//map <string, Variable*> variables;
-bool isDeclared(string name, Space localSpace) {
-    return localSpace.variables.count(name) > 0;
+map <string, int> labels;
+map <string, Variable*> variables;
+bool isDeclared(string name) {
+    return variables.count(name) > 0;
 }
 bool isAbc(char ch) {
     bool isLow = (ch >= 'a' && ch <= 'z');
@@ -15,34 +15,8 @@ bool isJump(OPERATOR op) {
     bool isGoto = (op == GOTO);
     return isIf || isWhile || isGoto;
 }
-Function *initFunction(string codeline, int &pos, Space &currentSpace, int row) {
-    int begin = pos;
-    for (; isAbc(codeline[pos]); pos++) {
-    }
-    string subcode = codeline.substr(begin, pos - begin);
-    if ((pos - begin) == 0) 
-        return nullptr;
-    if (subcode == "FUNCTION") {
-        pos++;
-        begin = pos;
-        for (; isAbc(codeline[pos]); pos++) {
-        }
-        string func_name = codeline.substr(begin, pos - begin);
-        Function *newFun = new Function(func_name, row);
-        functions[func_name] = newFun;
-        newSpace = newFun.getSpace();
-        pos += OPERTEXT[ARG_LBRACKET];
-        vector<Lexem*> argVec = parseLexem(codeline, pos, newSpace);
-        for (int i = 0; i < (int)argVec.size(); i++) {
-            if (argVec[i].getClass() == VARIABLE) {
-                newFun.pushArg(((Variable*)argVec));
-            }
-        }
-        currentSpace = newSpace;
-        return newFun;
-    }
-    return nullptr;
-
+bool isDeclaredFunc(string name) {
+    return functions.count(name) > 0;
 }
 Lexem* get_oper(string codeline, int &pos) {
     for (int op = 0; op < OP_NUM; op++) {
@@ -72,30 +46,48 @@ Lexem* get_number(string codeline, int &pos) {
     }
     return new Number(num);
 }
-Lexem* get_variable(string codeline, int &pos, Space &currentSpace) {
+Lexem* get_variable(string codeline, int &pos) {
     int begin = pos;
     for (; isAbc(codeline[pos]); pos++) {
     }
     string subcode = codeline.substr(begin, pos - begin);
     if ((pos - begin) == 0)
         return nullptr;
-    if (isDeclared(subcode, currentSpace)) {
-        return currentSpace.variables[subcode];
+    if (isDeclared(subcode)) {
+        return variables[subcode];
     } else {
         if (codeline[pos] == '[') {
             Pointer *new_ptr = new Pointer(subcode);
-            currentSpace.variables[subcode] = new_ptr;
+            variables[subcode] = new_ptr;
             cout << "PTR::: " << new_ptr << endl;
             return new_ptr;
         }
         Variable *new_var = new Variable(subcode);
-        currentSpace.variables[subcode] = new_var;
+        variables[subcode] = new_var;
         return new_var;
     }
 }
+Lexem* getFunction(string codeline, int &pos) {
+    int begin = pos;
+    for (; isAbc(codeline[pos]); pos++) {
+    }
+    string subcode = codeline.substr(begin, pos - begin);
+    if ((pos - begin) == 0) 
+        return nullptr;
+    if (codeline[pos] == '_') {
+        if (!isDeclaredFunc(subcode)) {
+            Function *newFun = new Function(subcode);
+            functions[subcode] = newFun;
+            return newFun;
+        } else {
+            return functions[subcode];
+        }
+    }
+    pos = begin;
+    return nullptr;    
+}
 vector<Lexem*> parseLexem(
-	std::string codeline, vector<Lexem*> &toDelete, Space &currentSpace,
-    Function* &currentFunction, int currentRow) {
+	std::string codeline, vector<Lexem*> &toDelete) {
         vector<Lexem *> infix;
         vector<string> lexems;
         string tmp = "";
@@ -105,23 +97,22 @@ vector<Lexem*> parseLexem(
                 i++;
                 continue;
             }
-            lexem = initFunctions(codeline, i, currentSpace, currentRow);
-            if (lexem != nullptr) {
-                currentFunction = (Function*)lexem;
-                infix.push_back(lexem);
-                return infix;
-            }
             lexem = get_oper(codeline, i);
+            if (lexem != nullptr) {
+                 infix.push_back(lexem);
+                 continue;
+            }
+            lexem = getFunction(codeline, i);
             if (lexem != nullptr) {
                 infix.push_back(lexem);
                 continue;
             }
             lexem = get_number(codeline, i);
             if (lexem != nullptr) {
-                infix.push_back(lexem);
-                continue;
+                 infix.push_back(lexem);
+                 continue;
             }
-            lexem = get_variable(codeline, i, currentSpace);
+            lexem = get_variable(codeline, i);
             if (lexem != nullptr) {
                 infix.push_back(lexem);
                 continue;
@@ -130,13 +121,14 @@ vector<Lexem*> parseLexem(
         }
         return infix;
 }
-void initLabels(vector<Lexem*> &infix, int row, Space &currentSpace) {
+void initLabels(vector<Lexem*> &infix, int row) {
     for (int i = 1; i < (int)infix.size(); i++) {
         if ((infix[i - 1]->getClass() == VARIABLE) && (infix[i]->getClass() == OPER)) {
             Variable *lexemvar = (Variable*)infix[i - 1];
             Oper *lexemop = (Oper*)infix[i];
             if (lexemop->getType() == COLON) {
-                currentSpace.labels[lexemvar->getName()] = row;
+                cout << "TEST LABELS" << endl;
+                labels[lexemvar->getName()] = row;
                 infix[i - 1] = nullptr;
                 infix[i] = nullptr;
                 delete infix[i - 1];

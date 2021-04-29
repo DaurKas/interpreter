@@ -1,25 +1,12 @@
 #include "semantic.h"
-#include "lexem.h"
-#include "lexical.h"
-int evaluatePoliz(vector<Lexem *> &poliz, int row) {
+//#include "functions.h"
+//#include "lexem.h"
+//#include "lexical.h"
+int evaluatePoliz(vector<Lexem *> &poliz, int row, Function *curFun) {
     stack <Lexem*> evalue;
     vector <Lexem*> toDelete;
     vector <Lexem*> args;
-    /* if (poliz[0] == nullptr) {
-        cout << "NULL" << endl;
-        return 0;
-    }*/
-    
-    /*for (const auto &lexem: poliz) {
-        cout << "__" << lexem->getClass() << "  ";
-        if (lexem->getClass() == OPER) 
-            cout << "( " << ((Oper*)lexem)->getType() << " )  ";
-        if (lexem->getClass() == NUMBER) 
-            cout << "( " << lexem->getValue() << " ) ";
-    }
-    cout << "_________" << endl;
-    */
-
+    stack <Function*> funStack;
     for (const auto &lexem: poliz) {
         if (lexem == nullptr) {
             return 0;
@@ -30,7 +17,7 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                 lexemop->getType() == ELSE || 
                 lexemop->getType() == ENDWHILE) {
                 Goto *lexemgoto = (Goto*)lexemop;
-                return lexemgoto->getRow();
+                return lexemgoto->getRow() - curFun->getRow();
             } else if (lexemop->getType() == IF || lexemop->getType() == WHILE) {
                     Goto *lexemgoto = (Goto*)lexemop;
                     if (evalue.top()->getClass() == NUMBER) {
@@ -40,7 +27,7 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                             for (const auto &lexem: toDelete) {
                                 delete lexem;
                             }
-                            return lexemgoto->getRow();
+                            return lexemgoto->getRow() - curFun->getRow();
                         }
                     }
             } else if (lexemop->getType() == DEREF) {
@@ -53,15 +40,24 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
                 }
                 
             } else if (lexemop->getType() == DELIM) {
-                args.push(evalue.top());
-                evalue.pop;
-            } else if (lexemop->getType() == ENDARG) {
-                Function *func = (Function*)evalue.top();
-                Lexem *res = func->getValue(args);
-            } else if (lexemop->getType() == ENDFUNCTION) {
-                Number *ret = evalue.top();
+                Lexem *arg = evalue.top();
                 evalue.pop();
-                valStack.push(ret);
+                funStack.top()->pushNewArg(arg);
+            } else if (lexemop->getType() == ENDARGS) {
+                Lexem *arg = evalue.top();
+                evalue.pop();
+                funStack.top()->pushNewArg(arg);
+                Function *fun = (Function*)evalue.top();
+                evalue.pop();
+                curFun->saveVars();
+                Number *ret = fun->getValue();
+                curFun->loadVars();
+                evalue.push(ret);
+            } else if (lexemop->getType() == ENDFUNCTION) {
+                Lexem *ret = evalue.top();
+                Number *res = new Number(ret->getValue());
+                curFun->pushEval(res);
+                curFun->pushToDelete(res);
             } else {
                 Lexem *a, *b;
                 b = evalue.top();
@@ -78,10 +74,26 @@ int evaluatePoliz(vector<Lexem *> &poliz, int row) {
             evalue.push(lexemnum);
         } else if (lexem->getClass() == VARIABLE || lexem->getClass() == POINTER) {
             evalue.push(lexem);
+        } else if (lexem->getClass() == FUNCTION) {
+            funStack.push((Function*)lexem);
+            evalue.push(lexem);
         }
     }
     for (const auto &lexem: toDelete) {
         delete lexem;
     }
     return row + 1;
+}
+Number* Function::getValue() {
+    for (int i = (int)args.size() - 1; i >= 0; i--) {
+        args[i]->setValue((argStack.top())->getValue());
+        argStack.pop();
+    }
+    int row = 0;
+    while (row >= 0 && row < (int)poliz.size()) {
+        row = evaluatePoliz(poliz[row], row, this);
+    }
+    Number *ret = evalStack.top();
+    evalStack.pop();
+    return ret;
 }

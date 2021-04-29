@@ -2,11 +2,6 @@
 #include "semantic.h"
 #include "syntax.h"
 #include <fstream>
-void printVariables() {
-    for (auto it = variables.begin(); it != variables.end(); ++it) {
-        cout << it->first << "___" << it->second->getValue() << endl;
-    }
-}
 int main(int argc, char **argv) {
     if (argc < 2) {
         cout << "No argument" << endl;
@@ -16,38 +11,22 @@ int main(int argc, char **argv) {
 	std::string codeline;
     vector<vector<Lexem*>> infixlines, postfixlines;
     vector<Lexem*> toDelete;
-    int currentRow = 0;
     while (getline(fin, codeline)) {
         cout << codeline << endl;
-        infixlines.push_back(parseLexem(codeline, toDelete, currentSpace, currentFunction, currentRow));
-        currentRow++;
+        infixlines.push_back(parseLexem(codeline, toDelete));
+    }
+    initFunctions(infixlines);
+    for (int row = 0; row < (int)infixlines.size(); row++) {
+        initLabels(infixlines[row], row);
     }
     initJumps(infixlines);
-    for (auto it = functions.begin(); it != functions.end(); ++it) {
-        it->second->buildFunction(infixLines);
-    }
+    buildFunctions(infixlines);
     Function *main = functions["main"];
-    Number *res = main.getValue();
-    /*for (const auto &infix: infixlines) {
-        postfixlines.push_back(buildPoliz(infix, toDelete));
-    }
-    int row = 0;
-    while (row >= 0 && row < (int)postfixlines.size()) {
-        row = evaluatePoliz(postfixlines[row], row);
-    }
-    printVariables();
-    for (const auto &infix: infixlines) {
-        for (int i = 0; i < (int)infix.size(); i++) {
-            if (infix[i] != nullptr && infix[i]->getClass() != VARIABLE && infix[i]->getClass() != POINTER) {
-                delete infix[i];
-            }
-        }
-    }
-    for (auto it = variables.begin(); it != variables.end(); ++it) {
-            delete it->second;
-    }
-    for (int i = 0; i < (int)toDelete.size(); i++) {
-        delete toDelete[i];
-    } */
+    Number *arg = new Number(0);
+    main->pushNewArg(arg);
+    Number *res = main->getValue();
+    cout << res->getValue();
+    delete arg;
+    freeAll(infixlines);
     return 0;
 }
